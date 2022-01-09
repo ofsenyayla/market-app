@@ -1,8 +1,0 @@
-docker run -p 27017:21017 -d -e MONGO_INITDB_ROOT_USERNAME=admin -e MONGO_INITDB_ROOT_PASSWORD=password --name mongodb --net mongo-network mongo 
-**** admin ve şifreyi kodun içinde tanımlamayı unutma ****
-*** docker compose file kullanarak bunları onun içinde tanımlayabiliriz. -> network ü kendi oluşturuyor
-*** veri tabanı kaybolmasın diye "volume" kullan
-
-** docker-compose -f docker-compose.yml up -d
-
-** docker build -t app_name.1.0 .
