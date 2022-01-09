@@ -96,6 +96,10 @@ async def add_basket(data: dict, username):
     product = conn.local.product.find_one({"product_name":product_name})
 
     if product:
+      if product["stock_count"] < 1:
+        conn.local.product.delete_one({"product_name":product_name})
+        return {"error": "this product's stock is currently not available"}
+
       conn.local.product.find_one_and_update(
         {"product_name": product_name},
         {"$set":{

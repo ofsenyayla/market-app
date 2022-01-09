@@ -29,6 +29,16 @@ async def add_product(data: dict, username):
 
       # create new product
       if not product:
+        try:
+          float(data["price"])
+          int(data["stock_count"])
+
+        except:
+          raise HTTPException(status_code=400, detail={"ERROR": "invalid price or stock count"})
+
+        if data["price"] <= 0 or data["stock_count"] <= 0:
+          raise HTTPException(status_code=400, detail={"ERROR": "invalid price or stock count"})
+
         product_dict = {
           "product_name": product_name,
           "price": data["price"],
