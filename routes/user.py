@@ -27,7 +27,7 @@ async def register_user(user: User):
     raise HTTPException(status_code=400, detail={"ERROR": "this email is already exists"})
 
   dict_user["wallet"] = 0.0
-  dict_user["basket"] = []
+  dict_user["basket"] = {}
   dict_user["basket_total"] = 0.0
   conn.local.user.insert_one(dict_user)
   return {"message": "user created successfully"}
@@ -107,7 +107,10 @@ async def add_basket(data: dict, username):
         }})
 
       basket = user["basket"]
-      basket.append(product_name)
+      if product_name in basket.keys():
+        basket[product_name] += 1
+      else:
+        basket[product_name] = 1
 
       basket_total = user["basket_total"]
       basket_total += product["price"]
@@ -162,11 +165,11 @@ async def buy_basket_content(username):
       return {"error": "your balance is not enough"}
 
     else:
-      if user["basket"] != []:
+      if user["basket"] != {}:
         conn.local.user.find_one_and_update(
           {"username": username},
           {"$set":{
-            "basket": [],
+            "basket": {},
             "basket_total": 0,
             "wallet": wallet - basket_total
           }})
@@ -186,18 +189,18 @@ async def delete_basket(username):
 
   else:
     basket = user["basket"]
-    if basket != []:
-      for p in basket:
+    if basket != {}:
+      for p in basket.keys():
         conn.local.product.find_one_and_update(
           {"product_name": p},
           {"$set":{
-            "stock_count": conn.local.product.find_one({"product_name":p})["stock_count"] + 1
+            "stock_count": conn.local.product.find_one({"product_name":p})["stock_count"] + basket[p]
           }})
 
       conn.local.user.find_one_and_update(
           {"username": username},
           {"$set":{
-            "basket": [],
+            "basket": {},
             "basket_total": 0,
           }})
 
